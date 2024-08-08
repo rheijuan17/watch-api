@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 
 import { CreateWatchDto } from './dto/create-watch.dto';
 import { UpdateWatchDto } from './dto/update-watch.dto';
 
 import { Watch } from 'src/models/watch.model';
 
-import { ApiLogger } from 'src/util/logger';
 import { omit } from '../util/utils';
+
+import { ApiLogger } from 'src/util/logger/logger';
+import { PrismaService } from 'src/util/prisma';
 
 @Injectable()
 export class WatchService {

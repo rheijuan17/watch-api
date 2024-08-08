@@ -7,8 +7,8 @@ import { AppService } from './app.service';
 
 import { WatchModule } from './watch/watch.module';
 
-import { PrismaService } from './prisma.service';
-import { ApiLogger } from './util/logger';
+import { PrismaService } from './util/prisma';
+import { ApiLogger } from './util/logger/logger';
 
 @Module({
   imports: [ConfigModule.forRoot(), WatchModule],
