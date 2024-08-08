@@ -7,7 +7,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Watch API Documentation')
-    .setDescription('Set of APIs for CRUD functions for a watch catalog')
+    .setDescription('A RESTful API for CRUD functions for a watch catalog')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
