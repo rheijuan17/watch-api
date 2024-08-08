@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
+import { Watch } from 'src/models/watch.model';
 import { WatchService } from './watch.service';
 import { CreateWatchDto } from './dto/create-watch.dto';
 import { UpdateWatchDto } from './dto/update-watch.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Watch } from 'src/models/watch.model';
 
-
-@ApiTags('watch')
+@ApiTags('watches')
 @Controller('watch')
 export class WatchController {
     constructor(
@@ -28,7 +28,7 @@ export class WatchController {
     }
 
     @Post()
-    @ApiOperation({ summary: 'Create a watche' })
+    @ApiOperation({ summary: 'Create a watch' })
     @ApiResponse({ status: 200, description: 'Created watch', type: Watch })
     async create(@Body() createWatchDto: CreateWatchDto) {
         return await this.watchService.create(createWatchDto);

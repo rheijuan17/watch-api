@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { AppService } from './app.service';
-import { WatchModule } from './watch/watch.module';
 import { ConfigModule } from '@nestjs/config';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+import { WatchModule } from './watch/watch.module';
+
 import { PrismaService } from './prisma.service';
-import { ApiLogger } from './logger.service';
+import { ApiLogger } from './util/logger';
 
 @Module({
   imports: [ConfigModule.forRoot(), WatchModule],
