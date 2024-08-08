@@ -87,8 +87,11 @@ export class WatchService {
             throw new NotFoundException(`No watch found with reference no ${code}`); 
         }
 
-        this.logger.log(`Done retreving a watch`);
-        return watch;
+        this.logger.log(`Done retreiving a watch`);
+        return {
+            id: watch.code,
+            ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
+        };
     }
 
     async create(createWatchDto: CreateWatchDto) {
