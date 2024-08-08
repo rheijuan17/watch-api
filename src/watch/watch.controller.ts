@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { WatchService } from './watch.service';
-import { Watch } from 'src/models/watch.model';
 import { ConfigService } from '@nestjs/config';
+import { CreateWatchDto } from './dto/create-watch.dto';
+import { UpdateWatchDto } from './dto/update-watch.dto';
 
 @Controller('watch')
 export class WatchController {
@@ -11,33 +12,27 @@ export class WatchController {
     ) {}
 
     @Get()
-    getAll(@Query('brand') brand?: string) {
-        const brands = this.configService.get<string>('BRANDS').split(',');
-        
-        if (!(brand in brands)) {
-            return false;
-        }
-        
-        return this.watchService.getAll(brand);
+    async getAll(@Query('brand') brand?: string) {
+        return await this.watchService.getAll(brand);
     }
 
     @Get(':id')
-    get(@Param('id') id: string) {
-        return this.watchService.get(id);
+    async get(@Param('id') id: string) {
+        return await this.watchService.get(id);
     }
 
     @Post()
-    create(@Body() watch: Watch) {
-        return this.watchService.create(watch);
+    async create(@Body() createWatchDto: CreateWatchDto) {
+        return await this.watchService.create(createWatchDto);
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() watchUpdate: {}) {
-        return { id, ...watchUpdate };
+    async update(@Param('id') id: string, @Body() updateWatchDto : UpdateWatchDto) {
+        return await this.watchService.update(id, updateWatchDto);
     }
 
     @Delete(':id')
-    delete(@Param('id') id: string) {
-
+    async delete(@Param('id') id: string) {
+        return await this.watchService.delete(id);
     }
 }

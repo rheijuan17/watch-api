@@ -1,58 +1,93 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+
+import { CreateWatchDto } from './dto/create-watch.dto';
+import { UpdateWatchDto } from './dto/update-watch.dto';
+
 import { Watch } from 'src/models/watch.model';
+
+import { omit } from '../util/utils';
+
 const { v4: uuid } = require('uuid');
 
 @Injectable()
 export class WatchService {
-    private watches = [
-        {
-            id: 1,
-            name: 'WATCH 1',
-            brand: 'GARMIN',
-            referenceNumber: '37cc9dce-f384-4491-961f-04bf64ec7bea'
-        },
-        {
-            id: 2,
-            name: 'WATCH 2',
-            brand: 'GARMIN',
-            referenceNumber: '808528b1-8943-420c-bb2b-2d6c7c76311f'
-        },
-        {
-            id: 3,
-            name: 'WATCH 3',
-            brand: 'NIKE',
-            referenceNumber: 'aee72166-7b30-421a-aafd-8712794c2d12'
-        },
-        {
-            id: 4,
-            name: 'WATCH 4',
-            brand: 'ADIDAS',
-            referenceNumber: 'c31273e0-8636-48e1-a229-91275808fd57'
-        }
-    ]
 
-    getAll(brand?: string) {
+    constructor(private prisma: PrismaService) {}
+
+    async getAll(brand?: string) {
+        let watchList: Watch[];
+
         if (brand) {
-            return this.watches.filter(watch => watch.brand === brand);
+            watchList = await this.prisma.watches.findMany({
+                where: { brand }
+            });
         }
 
-        return this.watches;
+        watchList = await this.prisma.watches.findMany();
+
+        let _watchList: Partial<Watch>[] = [];
+
+        if (watchList.length) {
+            watchList.forEach((watch) => {
+                _watchList.push({
+                    id: watch.code,
+                    ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
+                })
+            });
+
+            return _watchList;
+        } else {
+            // TODO: add logger
+            console.log('No watches to return');
+        }
+
+        return watchList;
     }
 
     get(id: string) {
-        const watch = this.watches.find(watch => watch.referenceNumber === id);
+        const code = id;
 
-        return watch;
+        return this.prisma.watches.findUnique({
+            where: { code }
+        });
     }
 
-    create(watch: Watch) {
-        const id = uuid();
-        const { name, brand } = watch
+    async create(createWatchDto: CreateWatchDto) {
+        createWatchDto.code = uuid();
 
-        return { id, name, brand };
+        // TODO: remove replace id with code
+        const watch = await this.prisma.watches.create({
+            data: createWatchDto
+        });
+        
+        return {
+            id: watch.code,
+            ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
+        };
     }
 
-    update(watchUpdate: { name: string, brand: string }) {
-        return { name: watchUpdate.name, brand: watchUpdate.brand };
+    async update(id: string, updateWatchDto: UpdateWatchDto) {
+        const code = id;
+
+        const watch = await this.prisma.watches.update({
+            where: { code },
+            data: updateWatchDto 
+        });
+        
+        return {
+            id: watch.code,
+            ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
+        };
+    }
+
+    async delete(id: string) {
+        const code = id;
+        
+        await this.prisma.watches.delete({
+            where: { code }
+        });
+        
+        return;
     }
 }

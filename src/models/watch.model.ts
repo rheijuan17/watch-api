@@ -1,9 +1,8 @@
-export class Watch  {
-    name: string;
-    brand: string;
-
-    constructor(name: string, brand: string) {
-        this.name = name;
-        this.brand = brand;
-    }
+export class Watch {
+   id:         number | string;
+   name:       string;
+   brand:      string;
+   code:       string;
+   createdAt?: Date;
+   updatedAt?: Date;
 }
