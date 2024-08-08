@@ -40,6 +40,10 @@ export class WatchController {
             ],
         }
     })
+    @ApiResponse({
+        status: 404,
+        description: 'No watches to return.',
+    })
     async getAll(@Query() paginationDto?: PaginationDto, @Query('brand') brand?: string) {
             return await this.watchService.getAll(paginationDto, brand);
     }
@@ -62,6 +66,10 @@ export class WatchController {
                 brand: 'Omega'
             },
         }
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'No watch to return with given reference id.',
     })
     async get(@Param('id') id: string) {
         return await this.watchService.get(id);
@@ -103,6 +111,10 @@ export class WatchController {
             },
         }, 
     })
+    @ApiResponse({
+        status: 404,
+        description: 'No watch to update with given reference id.',
+    })
     async update(@Param('id') id: string, @Body() updateWatchDto : UpdateWatchDto) {
         return await this.watchService.update(id, updateWatchDto);
     }
@@ -116,6 +128,10 @@ export class WatchController {
         required: true,
     })
     @ApiResponse({ status: 204 })
+    @ApiResponse({
+        status: 404,
+        description: 'No watch to delete with given reference id.',
+    })
     async delete(@Param('id') id: string) {
         return await this.watchService.delete(id);
     }

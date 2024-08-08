@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { CreateWatchDto } from './dto/create-watch.dto';
@@ -63,6 +63,7 @@ export class WatchService {
             });
         } else {
             this.logger.log(`No watches to return`);
+            throw new NotFoundException(`No watches to return`);
         }
 
         this.logger.log(`Done retreving all watches`);
@@ -78,10 +79,16 @@ export class WatchService {
         this.logger.log(`Retreving watch by code`);
         const code = id;
 
-        this.logger.log(`Done retreving a watch`);
-        return this.prisma.watches.findUnique({
+        const watch = this.prisma.watches.findUnique({
             where: { code }
         });
+        
+        if (!watch) {
+            throw new NotFoundException(`No watch found with reference no ${code}`); 
+        }
+
+        this.logger.log(`Done retreving a watch`);
+        return watch;
     }
 
     async create(createWatchDto: CreateWatchDto) {
@@ -101,21 +108,37 @@ export class WatchService {
         this.logger.log(`Updating a watch`);
         const code = id;
 
-        const watch = await this.prisma.watches.update({
+        const watch = this.prisma.watches.findUnique({
+            where: { code }
+        });
+
+        if (!watch) {
+            throw new NotFoundException(`No watch found with reference no ${code}`); 
+        }
+
+        const _watch = await this.prisma.watches.update({
             where: { code },
             data: updateWatchDto 
         });
         
         this.logger.log(`Done updating a watch`);
         return {
-            id: watch.code,
-            ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
+            id: _watch.code,
+            ...omit(_watch, 'id', 'code', 'createdAt', 'updatedAt')
         };
     }
 
     async delete(id: string) {
         this.logger.log(`Updating a watch`);
         const code = id;
+
+        const watch = this.prisma.watches.findUnique({
+            where: { code }
+        });
+
+        if (!watch) {
+            throw new NotFoundException(`No watch found with reference no ${code}`); 
+        }
         
         this.logger.log(`Done deleting a watch`);
         await this.prisma.watches.delete({
