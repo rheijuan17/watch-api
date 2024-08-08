@@ -75,11 +75,11 @@ export class WatchService {
         };
     }
 
-    get(id: string) {
+    async get(id: string) {
         this.logger.log(`Retreving watch by code`);
         const code = id;
 
-        const watch = this.prisma.watches.findUnique({
+        const watch = await this.prisma.watches.findUnique({
             where: { code }
         });
         
@@ -108,7 +108,7 @@ export class WatchService {
         this.logger.log(`Updating a watch`);
         const code = id;
 
-        const watch = this.prisma.watches.findUnique({
+        const watch = await this.prisma.watches.findUnique({
             where: { code }
         });
 
@@ -132,7 +132,7 @@ export class WatchService {
         this.logger.log(`Updating a watch`);
         const code = id;
 
-        const watch = this.prisma.watches.findUnique({
+        const watch = await this.prisma.watches.findUnique({
             where: { code }
         });
 
