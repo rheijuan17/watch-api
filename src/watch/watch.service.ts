@@ -26,41 +26,51 @@ export class WatchService {
         let watchList: Watch[];
         let total = 0;
         
-        const { page = 1, limit = this.config.get<number>('LIMIT') } = paginationDto;
-        const skip = (page - 1) * limit;
+        const { page = this.config.get<number>('PAGE'), limit = this.config.get<number>('LIMIT') } = paginationDto;
+
+        const _page = Number(page);
+        const _limit = Number(limit);
+
+        const skip = (_page - 1) * _limit;
 
         if (brand) {
             watchList = await this.prisma.watches.findMany({
                 where: { brand },
                 skip,
-                take: limit,
+                take: _limit,
             });
-        }
 
-        watchList = await this.prisma.watches.findMany();
+            total = await this.prisma.watches.count({
+                where: { brand },
+            });
+        } else {
+            watchList = await this.prisma.watches.findMany({
+                skip,
+                take: _limit,
+            });
+
+            total = await this.prisma.watches.count();
+        }
 
         let _watchList: Partial<Watch>[] = [];
 
-        if (watchList.length) {
-            total = watchList.length;    
+        if (watchList.length) {  
             watchList.forEach((watch) => {
                 _watchList.push({
                     id: watch.code,
                     ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
                 })
             });
-
-            return _watchList;
         } else {
             this.logger.log(`No watches to return`);
         }
 
         this.logger.log(`Done retreving all watches`);
         return {
-            data: watchList,
+            data: _watchList,
             total,
-            page, 
-            lastPage: Math.ceil(total / limit),
+            page: _page, 
+            lastPage: Math.ceil(total / _limit),
         };
     }
 
