@@ -10,5 +10,6 @@ export class CreateWatchDto {
   readonly brand: string;
 
   @IsUUID()
+  @IsNotEmpty()
   code: string;
 }

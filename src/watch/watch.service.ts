@@ -7,15 +7,18 @@ import { UpdateWatchDto } from './dto/update-watch.dto';
 import { Watch } from 'src/models/watch.model';
 
 import { omit } from '../util/utils';
-
-const { v4: uuid } = require('uuid');
+import { ApiLogger } from 'src/logger.service';
 
 @Injectable()
 export class WatchService {
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private logger: ApiLogger
+    ) {}
 
     async getAll(brand?: string) {
+        this.logger.log(`Retreving all watches`);
         let watchList: Watch[];
 
         if (brand) {
@@ -38,29 +41,30 @@ export class WatchService {
 
             return _watchList;
         } else {
-            // TODO: add logger
-            console.log('No watches to return');
+            this.logger.log(`No watches to return`);
         }
 
+        this.logger.log(`Done retreving all watches`);
         return watchList;
     }
 
     get(id: string) {
+        this.logger.log(`Retreving watch by code`);
         const code = id;
 
+        this.logger.log(`Done retreving a watch`);
         return this.prisma.watches.findUnique({
             where: { code }
         });
     }
 
     async create(createWatchDto: CreateWatchDto) {
-        createWatchDto.code = uuid();
-
-        // TODO: remove replace id with code
+        this.logger.log(`Creating a watch`);
         const watch = await this.prisma.watches.create({
             data: createWatchDto
         });
         
+        this.logger.log(`Done creating a watch`);
         return {
             id: watch.code,
             ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
@@ -68,6 +72,7 @@ export class WatchService {
     }
 
     async update(id: string, updateWatchDto: UpdateWatchDto) {
+        this.logger.log(`Updating a watch`);
         const code = id;
 
         const watch = await this.prisma.watches.update({
@@ -75,6 +80,7 @@ export class WatchService {
             data: updateWatchDto 
         });
         
+        this.logger.log(`Done updating a watch`);
         return {
             id: watch.code,
             ...omit(watch, 'id', 'code', 'createdAt', 'updatedAt')
@@ -82,8 +88,10 @@ export class WatchService {
     }
 
     async delete(id: string) {
+        this.logger.log(`Updating a watch`);
         const code = id;
         
+        this.logger.log(`Done deleting a watch`);
         await this.prisma.watches.delete({
             where: { code }
         });
