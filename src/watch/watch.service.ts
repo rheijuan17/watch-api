@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { CreateWatchDto } from './dto/create-watch.dto';
 import { UpdateWatchDto } from './dto/update-watch.dto';
+import { PaginationDto } from 'src/pagination/pagination.dto';
 
 import { Watch } from 'src/models/watch.model';
 
@@ -15,16 +17,23 @@ export class WatchService {
 
     constructor(
         private prisma: PrismaService,
-        private logger: ApiLogger
+        private logger: ApiLogger,
+        private config: ConfigService,
     ) {}
 
-    async getAll(brand?: string) {
+    async getAll(paginationDto?: PaginationDto, brand?: string) {
         this.logger.log(`Retreving all watches`);
         let watchList: Watch[];
+        let total = 0;
+        
+        const { page = 1, limit = this.config.get<number>('LIMIT') } = paginationDto;
+        const skip = (page - 1) * limit;
 
         if (brand) {
             watchList = await this.prisma.watches.findMany({
-                where: { brand }
+                where: { brand },
+                skip,
+                take: limit,
             });
         }
 
@@ -33,6 +42,7 @@ export class WatchService {
         let _watchList: Partial<Watch>[] = [];
 
         if (watchList.length) {
+            total = watchList.length;    
             watchList.forEach((watch) => {
                 _watchList.push({
                     id: watch.code,
@@ -46,7 +56,12 @@ export class WatchService {
         }
 
         this.logger.log(`Done retreving all watches`);
-        return watchList;
+        return {
+            data: watchList,
+            total,
+            page, 
+            lastPage: Math.ceil(total / limit),
+        };
     }
 
     get(id: string) {

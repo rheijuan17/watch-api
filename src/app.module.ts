@@ -11,7 +11,12 @@ import { PrismaService } from './util/prisma';
 import { ApiLogger } from './util/logger/logger';
 
 @Module({
-  imports: [ConfigModule.forRoot(), WatchModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }), 
+    WatchModule
+  ],
   controllers: [AppController],
   providers: [
     AppService, 
